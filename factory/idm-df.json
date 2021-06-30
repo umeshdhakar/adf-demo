@@ -1,0 +1,9 @@
+{
+	"name": "idm-df",
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "dbb2b07a-d945-4b26-a9ae-ad1db779302b",
+		"tenantId": "08536e78-8925-47d3-b015-8056c81c230c"
+	}
+}

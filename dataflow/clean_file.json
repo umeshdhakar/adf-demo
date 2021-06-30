@@ -1,0 +1,53 @@
+{
+	"name": "clean_file",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "inputMovie",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "outputCSV",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "DerivedColumn1"
+				},
+				{
+					"name": "namewithyear"
+				},
+				{
+					"name": "Aggregate1"
+				},
+				{
+					"name": "Sort1"
+				},
+				{
+					"name": "Select1"
+				},
+				{
+					"name": "SplitMovie"
+				},
+				{
+					"name": "Union1"
+				},
+				{
+					"name": "Join1"
+				}
+			],
+			"script": "source(output(\n\t\tmovieId as string,\n\t\ttitle as string,\n\t\tgenres as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tpartitionBy('hash', 1)) ~> source1\nsource1 derive(name = left(title, length(title)-7),\n\t\tyear = toInteger(right(trim(title, '()'), 4))) ~> DerivedColumn1\nDerivedColumn1 select(mapColumn(\n\t\tmovieId,\n\t\ttitle,\n\t\tgenres,\n\t\tname,\n\t\tyear\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> namewithyear\nnamewithyear aggregate(groupBy(year),\n\tcount = count(name),\n\tpartitionBy('hash', 1)) ~> Aggregate1\nAggregate1 sort(desc(count, true)) ~> Sort1\nnamewithyear select(mapColumn(\n\t\tyear,\n\t\tname\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> Select1\nSelect1 split(between(year, 1991, 2000),\n\tbetween(year, 2001, 2010),\n\tbetween(year, 2011, 2020),\n\tdisjoint: false,\n\tpartitionBy('hash', 1)) ~> SplitMovie@(Movie1, Movie2, Movie3, Movie4)\nSplitMovie@Movie1, SplitMovie@Movie3 union(byName: true)~> Union1\nSplitMovie@Movie3, namewithyear join(SplitMovie@Movie3@name == namewithyear@name,\n\tjoinType:'left',\n\tbroadcast: 'auto')~> Join1\nSort1 sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:['movie_year.csv'],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tpartitionBy('hash', 1)) ~> sink1"
+		}
+	}
+}

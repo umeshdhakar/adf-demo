@@ -1,0 +1,45 @@
+{
+	"name": "input_file",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "idm_blob_ls",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": "unique_date.csv",
+				"container": "idm-input-files"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "Product",
+				"type": "String"
+			},
+			{
+				"name": " Customer",
+				"type": "String"
+			},
+			{
+				"name": " Date",
+				"type": "String"
+			},
+			{
+				"name": " Category",
+				"type": "String"
+			},
+			{
+				"name": " amt",
+				"type": "String"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}
